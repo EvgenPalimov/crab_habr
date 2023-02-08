@@ -11,14 +11,17 @@ from articles.filters import ArticleFilter
 class UserIsAdminCheckMixin(View):
     @method_decorator(user_passes_test(lambda u: u.is_staff))
     def dispatch(self, request, *args, **kwargs):
-        return super(UserIsAdminCheckMixin, self).dispatch(request, *args, **kwargs)
+        return super(UserIsAdminCheckMixin, self).dispatch(request, *args,
+                                                           **kwargs)
 
 
 class UserIsModeratorCheckMixin(View):
     @method_decorator(user_passes_test(lambda u: u.is_authenticated))
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_active and request.user.is_staff:
-            return super(UserIsModeratorCheckMixin, self).dispatch(request, *args, **kwargs)
+            return super(UserIsModeratorCheckMixin, self).dispatch(request,
+                                                                   *args,
+                                                                   **kwargs)
         else:
             return HttpResponseNotAllowed(request.method)
 
@@ -27,7 +30,8 @@ class UserLoginCheckMixin(View):
     @method_decorator(user_passes_test(lambda u: u.is_authenticated))
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_active:
-            return super(UserLoginCheckMixin, self).dispatch(request, *args, **kwargs)
+            return super(UserLoginCheckMixin, self).dispatch(request, *args,
+                                                             **kwargs)
         else:
             return HttpResponseNotAllowed(request.method)
 

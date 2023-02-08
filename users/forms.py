@@ -3,7 +3,8 @@ import hashlib
 import random
 
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, UserChangeForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, \
+    UserChangeForm
 from django.core.exceptions import ValidationError
 
 from users.models import User
@@ -17,13 +18,15 @@ class UserLoginForm(AuthenticationForm):
     error_messages = {
         **AuthenticationForm.error_messages,
         "blocked": (
-            "Пользователь %(username)s заблокирован за нарушение правил до %(date)s"
+            "Пользователь %(username)s заблокирован за нарушение"
+            " правил до %(date)s"
         ),
     }
 
     def __init__(self, *args, **kwargs):
         super(UserLoginForm, self).__init__(*args, **kwargs)
-        self.fields['username'].widget.attrs['placeholder'] = 'Имя пользователя'
+        self.fields['username'].widget.attrs['placeholder'] = \
+            'Имя пользователя'
         self.fields['password'].widget.attrs['placeholder'] = 'Пароль'
         self.fields['username'].label = 'Пользователь'
         self.fields['password'].label = 'Пароль'
@@ -44,31 +47,39 @@ class UserLoginForm(AuthenticationForm):
 
 
 class UserRegistrationForm(UserCreationForm):
-    username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Имя пользователя'}))
-    email = forms.CharField(widget=forms.EmailInput(attrs={'placeholder': 'Email'}))
-    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Пароль'}))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Повторите пароль'}))
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={'placeholder': 'Имя пользователя'}))
+    email = forms.CharField(
+        widget=forms.EmailInput(attrs={'placeholder': 'Email'}))
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'placeholder': 'Пароль'}))
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'placeholder': 'Повторите пароль'}))
 
     def __init__(self, *args, **kwargs):
         super(UserRegistrationForm, self).__init__(*args, **kwargs)
-        self.fields['username'].widget.attrs['placeholder'] = 'Придумайте логин'
+        self.fields['username'].widget.attrs[
+            'placeholder'] = 'Придумайте логин'
         self.fields['username'].label = 'Пользователь'
         self.fields['email'].widget.attrs['placeholder'] = 'myemail@mail.ml'
         self.fields['email'].label = 'Электронная почта'
-        self.fields['password1'].widget.attrs['placeholder'] = 'Придумайте пароль'
+        self.fields['password1'].widget.attrs[
+            'placeholder'] = 'Придумайте пароль'
         self.fields['password1'].label = 'Пароль'
-        self.fields['password2'].widget.attrs['placeholder'] = 'Повторите пароль'
+        self.fields['password2'].widget.attrs[
+            'placeholder'] = 'Повторите пароль'
         self.fields['password2'].label = 'Повторите пароль'
 
     def save(self):
         # метод дополнительно создает ключ активации пользователя
         user = super(UserRegistrationForm, self).save()
         user.is_active = False
-        salt = hashlib.sha1(str(random.random()).encode('utf8')).hexdigest()[:6]
-        user.activation_key = hashlib.sha1((user.email + salt).encode('utf-8')).hexdigest()
+        salt = hashlib.sha1(str(random.random()).encode('utf8')).hexdigest()[
+               :6]
+        user.activation_key = hashlib.sha1(
+            (user.email + salt).encode('utf-8')).hexdigest()
         user.save()
         return user
-
 
     class Meta:
         model = User

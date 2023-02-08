@@ -1,4 +1,4 @@
-from django.test import TestCase, RequestFactory, Client
+from django.test import TestCase, RequestFactory
 from django.utils.html import strip_tags
 
 from .fixtures.articles import article_1, article_2
@@ -74,8 +74,10 @@ class IndexListViewTests(TestCase):
             User.objects.create(username=role,
                                 email=f'{role}@mail.com',
                                 is_active=True,
-                                is_staff=True if role in ('moder', 'admin') else False,
-                                is_superuser=True if role == 'admin' else False)
+                                is_staff=True if role in (
+                                'moder', 'admin') else False,
+                                is_superuser=True if role == 'admin'
+                                else False)
 
         cls.user = User.objects.get(username='user')
         cls.moder = User.objects.get(username='moder')
@@ -119,4 +121,6 @@ class IndexListViewTests(TestCase):
 
         real_values = [article.publication for article in queryset]
 
-        self.assertNotIn(False, real_values, msg="В IndexListView присутствуют неопубликованные статьи!")
+        self.assertNotIn(False, real_values,
+                         msg="В IndexListView присутствуют "
+                             "неопубликованные статьи!")

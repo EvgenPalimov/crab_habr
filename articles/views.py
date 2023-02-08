@@ -7,10 +7,13 @@ from django.shortcuts import redirect, get_object_or_404, render
 from django.template.defaultfilters import truncatechars_html
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView, DetailView, DeleteView, ListView
+from django.views.generic import CreateView, UpdateView, DetailView, \
+    DeleteView, ListView
 
-from articles.models import Article, Category, Notification, CommentLike, SubComment
-from crab_habr.mixin import BaseClassContextMixin, UserLoginCheckMixin, UserIsAdminCheckMixin, ArticleSearchMixin
+from articles.models import Article, Category, Notification, CommentLike, \
+    SubComment
+from crab_habr.mixin import BaseClassContextMixin, UserLoginCheckMixin, \
+    UserIsAdminCheckMixin, ArticleSearchMixin
 from users.models import User
 from .forms import ArticleAddUpdateDeleteForm, CommentForm, SelectCategoryForm
 from .models import Comment, ArticleCategory, ArticleLike
@@ -18,8 +21,8 @@ from .models import Comment, ArticleCategory, ArticleLike
 
 def preview_handler(queryset, max_preview_chars):
     """
-    Функция принимает query set и максимальное количество символов в итоговом preview
-    Результат работы функции - обработанный queryset с preview
+    Функция принимает query set и максимальное количество символов в итоговом
+    preview Результат работы функции - обработанный queryset с preview
     """
     for article in queryset:
         article_body = BeautifulSoup(article.article_body, 'html.parser')
@@ -61,7 +64,8 @@ class IndexListView(BaseClassContextMixin, ArticleSearchMixin, ListView):
         return context
 
 
-class CreateArticleView(BaseClassContextMixin, UserLoginCheckMixin, CreateView):
+class CreateArticleView(BaseClassContextMixin, UserLoginCheckMixin,
+                        CreateView):
     model = Article
     title = 'Добавить статью'
     form_class = ArticleAddUpdateDeleteForm
@@ -95,7 +99,8 @@ class CreateArticleView(BaseClassContextMixin, UserLoginCheckMixin, CreateView):
                           {'form': form, 'categories': form_article_category})
 
 
-class UpdateArticleView(BaseClassContextMixin, UserLoginCheckMixin, UpdateView):
+class UpdateArticleView(BaseClassContextMixin, UserLoginCheckMixin,
+                        UpdateView):
     model = Article
     title = 'Редактировать статью'
     slug_field = 'guid'
@@ -108,18 +113,21 @@ class UpdateArticleView(BaseClassContextMixin, UserLoginCheckMixin, UpdateView):
     @transaction.atomic
     def get_context_data(self, **kwargs):
         context = super(UpdateArticleView, self).get_context_data(**kwargs)
-        context['categories_checked'] = ArticleCategory.objects.filter(article_guid=self.kwargs['slug']).values_list(
+        context['categories_checked'] = ArticleCategory.objects.filter(
+            article_guid=self.kwargs['slug']).values_list(
             'category_guid', flat=True)
         context['categories'] = SelectCategoryForm()
         return context
 
     def post(self, request, *args, **kwargs):
-        form = ArticleAddUpdateDeleteForm(data=request.POST, instance=self.get_object())
+        form = ArticleAddUpdateDeleteForm(data=request.POST,
+                                          instance=self.get_object())
         form_article_category = SelectCategoryForm(data=request.POST)
         form.instance.author_id = self.request.user
         if form.is_valid() and form_article_category.is_valid():
             form.save()
-            ArticleCategory.objects.filter(article_guid=self.kwargs['slug']).delete()
+            ArticleCategory.objects.filter(
+                article_guid=self.kwargs['slug']).delete()
             for cat in Category.objects.filter(
                     guid__in=[x for x in form.data.getlist('name')]):
                 ArticleCategory.objects.create(
@@ -135,7 +143,8 @@ class UpdateArticleView(BaseClassContextMixin, UserLoginCheckMixin, UpdateView):
                           {'form': form, 'categories': form_article_category})
 
 
-class DeleteArticleView(BaseClassContextMixin, UserLoginCheckMixin, DeleteView):
+class DeleteArticleView(BaseClassContextMixin, UserLoginCheckMixin,
+                        DeleteView):
     """Класс DeleteArticleView - для удаления статьи."""
     model = Article
     title = 'Удалить статью'
@@ -173,40 +182,53 @@ class ArticleDetailView(BaseClassContextMixin, DetailView):
         self.is_ajax = False
 
     def post(self, request, *args, **kwargs):
-        self.is_ajax = True if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else False
+        self.is_ajax = True if request.headers.get(
+            'X-Requested-With') == 'XMLHttpRequest' else False
         _post = request.POST.copy()
-        _post['article_uid'] = Article.objects.get(guid=kwargs.get('slug', None))
+        _post['article_uid'] = Article.objects.get(
+            guid=kwargs.get('slug', None))
         form = self.form_class(data=_post)
         if form.is_valid() and self.is_ajax:
-            self.object = Comment.objects.create(article_uid=_post['article_uid'], body=_post['body'],
-                                                 user_id=request.user)
+            self.object = Comment.objects.create(
+                article_uid=_post['article_uid'], body=_post['body'],
+                user_id=request.user)
             if self.object.body.find('@moderator'):
                 for u in User.objects.filter(is_staff=True, is_active=True):
                     if u != request.user:
-                        Notification.objects.create(author_id=request.user, recipient_id=u,
-                                                    article_uid=_post['article_uid'],
-                                                    message='взывает к чистоте и порядку: ')
-            article_comments = Comment.objects.filter(article_uid=self.kwargs['slug'])
+                        Notification.objects.create(author_id=request.user,
+                                                    recipient_id=u,
+                                                    article_uid=_post[
+                                                        'article_uid'],
+                                                    message='взывает к чистоте'
+                                                            ' и порядку: ')
+            article_comments = Comment.objects.filter(
+                article_uid=self.kwargs['slug'])
             for a in article_comments:
                 a.sub_comments = SubComment.objects.filter(comment_uid=a)
             return JsonResponse(
-                {'result': 1, 'object': f'c_{kwargs.get("slug", None)}', 'like_object': f'{kwargs.get("slug", None)}',
-                 'data': render_to_string('articles/includes/article_comments.html',
-                                          {'comments': article_comments,
-                                           'article': _post['article_uid'], 'request': request, 'user': request.user}),
-                 'like': render_to_string('articles/includes/article_bottom.html',
-                                          {'article': _post['article_uid'], 'request': request, 'user': request.user})})
+                {'result': 1, 'object': f'c_{kwargs.get("slug", None)}',
+                 'like_object': f'{kwargs.get("slug", None)}',
+                 'data': render_to_string(
+                     'articles/includes/article_comments.html',
+                     {'comments': article_comments,
+                      'article': _post['article_uid'], 'request': request,
+                      'user': request.user}),
+                 'like': render_to_string(
+                     'articles/includes/article_bottom.html',
+                     {'article': _post['article_uid'], 'request': request,
+                      'user': request.user})})
         else:
             if self.is_ajax:
                 return JsonResponse({'result': 1, 'errors': form.errors})
-        return redirect(reverse_lazy('articles:article-detail', kwargs={'slug': self.get_object().pk}))
+        return redirect(reverse_lazy('articles:article-detail',
+                                     kwargs={'slug': self.get_object().pk}))
 
     def get_context_data(self, **kwargs):
-        article_comments = Comment.objects.filter(article_uid=self.kwargs['slug'])
+        article_comments = Comment.objects.filter(
+            article_uid=self.kwargs['slug'])
         for a in article_comments:
             a.sub_comments = SubComment.objects.filter(comment_uid=a)
         context = super(ArticleDetailView, self).get_context_data(**kwargs)
-        # context['comments'] = Comment.objects.filter(article_uid=self.kwargs['slug'])
         context.update({
             'form': self.form_class,
             'comments': article_comments,
@@ -214,7 +236,8 @@ class ArticleDetailView(BaseClassContextMixin, DetailView):
         return context
 
 
-class ArticlesUserListView(BaseClassContextMixin, ArticleSearchMixin, ListView):
+class ArticlesUserListView(BaseClassContextMixin, ArticleSearchMixin,
+                           ListView):
     """Класс IndexListView - для вывода статей на главной страницы."""
 
     paginate_by = 10
@@ -231,7 +254,8 @@ def publish_post(request, article_guid):
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     url_page = request.POST.get('_url_page', None)
     article = Article.objects.get(guid=article_guid)
-    if is_ajax and url_page == 'articles_user_lk' or url_page == 'publish_post':
+    if is_ajax and url_page == 'articles_user_lk' or url_page == \
+            'publish_post':
         if article.publication == False:
             article.publication = True
         else:
@@ -241,7 +265,8 @@ def publish_post(request, article_guid):
             {'result': 1, 'object': f'{article_guid}',
              'data': render_to_string(
                  'articles/includes/row_articles_user.html',
-                 {'article': article, 'request': request, 'user': request.user})})
+                 {'article': article, 'request': request,
+                  'user': request.user})})
     else:
         article.publication = True
         article.save()
@@ -263,7 +288,9 @@ class CategoryView(BaseClassContextMixin, ArticleSearchMixin, ListView):
         self.category = get_object_or_404(Category, guid=self.kwargs['slug'])
         self.title = self.category.name
         return self.queryset.filter(
-            guid__in=[s.article_guid_id for s in ArticleCategory.objects.filter(category_guid=self.category)],
+            guid__in=[s.article_guid_id for s in
+                      ArticleCategory.objects.filter(
+                          category_guid=self.category)],
             publication=True)
 
     def get_context_data(self, **kwargs):
@@ -302,20 +329,23 @@ def notification_readed(request):
             {'result': 1, 'object': f'{notification_guid}',
              'data': render_to_string(
                  'articles/includes/row_notifications.html',
-                 {'notification': notification, 'request': request, 'user': request.user})})
+                 {'notification': notification, 'request': request,
+                  'user': request.user})})
 
     if is_ajax and flag_all_read == 'True':
-        notifications = Notification.objects.filter(recipient_id=request.user.id)
-        for _ in notifications:
-            if _.message_readed == False:
-                _.message_readed = True
-                _.save()
+        notifications = Notification.objects.filter(
+            recipient_id=request.user.id)
+        for i in notifications:
+            if i.message_readed == False:
+                i.message_readed = True
+                i.save()
             else:
                 pass
 
-        return JsonResponse( {'result': 2,
-             'data': render_to_string('articles/notifications.html',
-                 {'request': request,'user': request.user})})
+        return JsonResponse({'result': 2,
+                             'data': render_to_string(
+                                 'articles/notifications.html',
+                                 {'request': request, 'user': request.user})})
 
 
 def like_pressed(request):
@@ -328,14 +358,16 @@ def like_pressed(request):
         return JsonResponse(
             {'result': 1, 'object': f'c_like_{comment.guid}',
              'data': render_to_string('articles/includes/comment_bottom.html',
-                                      {'comment': comment, 'request': request, 'user': request.user})})
+                                      {'comment': comment, 'request': request,
+                                       'user': request.user})})
     if is_ajax and article:
         article = Article.objects.get(guid=article)
         ArticleLike.set_like(article, request.user)
         return JsonResponse(
             {'result': 1, 'object': article.guid,
              'data': render_to_string('articles/includes/article_bottom.html',
-                                      {'article': article, 'request': request, 'user': request.user})})
+                                      {'article': article, 'request': request,
+                                       'user': request.user})})
 
 
 class AuthorArticles(BaseClassContextMixin, ArticleSearchMixin, ListView):

@@ -29,7 +29,9 @@ class TestUsersSmoke(TestCase):
     }
 
     def setUp(self):
-        self.user = User.objects.create_superuser(self.username, email=self.email, password=self.password)
+        self.user = User.objects.create_superuser(self.username,
+                                                  email=self.email,
+                                                  password=self.password)
 
     def test_login(self):
         # тестирование авторизации
@@ -48,7 +50,8 @@ class TestUsersSmoke(TestCase):
         print(f'test_register - post: {response.status_code}')
         self.assertEqual(response.status_code, 302)
         user = User.objects.get(username=self.new_user['username'])
-        activation_url = f"{settings.DOMAIN_NAME}/users/verify/{self.new_user['email']}/{user.activation_key}/"
+        activation_url = f"{settings.DOMAIN_NAME}/users/verify/" \
+                         f"{self.new_user['email']}/{user.activation_key}/"
         response = self.client.get(activation_url)
         print(f'test_register - activation_url: {response.status_code}')
         self.assertEqual(response.status_code, 200)
@@ -60,14 +63,15 @@ class TestUsersSmoke(TestCase):
         # тестирование личного кабинета
         response = self.client.get('/users/profile/')
         print(f'test_user_profile_anonymous: {response.status_code}')
-        self.assertEqual(response.status_code, 302)  # redirect to authorization
+        self.assertEqual(response.status_code,
+                         302)  # redirect to authorization
 
     def test_user_profile_logged_in(self):
         self.client.login(username=self.username, password=self.password)
         response = self.client.get('/users/profile/')
         print(f'test_user_profile_logged_in: {response.status_code}')
-        self.assertEqual(response.status_code, 200)  # getting profile edit page
-
+        self.assertEqual(response.status_code,
+                         200)  # getting profile edit page
 
     def tearDown(self):
         pass

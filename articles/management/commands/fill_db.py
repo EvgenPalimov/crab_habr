@@ -27,7 +27,8 @@ comment_arr = [
     'Много букв и куча всякой рекламы, зачем это тут?',
     'Если бы я понял о чем тут, то что-то бы и написал)',
     'Мда... кг/ам.',
-    'Купите мультиварку, чуток БУ, но жарит еще по самое немогу, инфа в профиле',
+    'Купите мультиварку, чуток БУ, но жарит еще по самое немогу, '
+    'инфа в профиле',
     'Что курил автор?',
     'Не знаю о чем тут, но картинки красивые )))',
     'Спасибо, поржал xDDD'
@@ -37,7 +38,8 @@ sub_comment_arr = [
     'Вы даже не понимаете о чем пишете!',
     'Странный коммент не по теме',
     'Аффтар убейсо апстенку!',
-    'Не согласен, если посмотреть на эти вещи сбоку, то спереди сзади ничего и нет!',
+    'Не согласен, если посмотреть на эти вещи сбоку, то спереди сзади '
+    'ничего и нет!',
     'Поддерживаю'
 ]
 
@@ -89,26 +91,37 @@ class Command(BaseCommand):
             obj = Article.objects.filter(guid=article['guid'])
             if not obj:
                 print('New article found.')
-                article['author_id'] = User.objects.get(id=article["author_id"])
+                article['author_id'] = User.objects.get(
+                    id=article["author_id"])
                 article['publication'] = True
                 Article(**article).save()
             else:
                 obj = Article.objects.get(guid=article['guid'])
                 obj.author_id = random.choice(User.objects.all())
-                obj.creation_date = datetime.date(2022, random.choice(range(1, 10)), random.choice(range(1, 28)))
-                print(f'Updating author to {obj.author_id} in existing article.')
+                obj.creation_date = datetime.date(2022,
+                                                  random.choice(range(1, 10)),
+                                                  random.choice(range(1, 28)))
+                print(
+                    f'Updating author to {obj.author_id} in existing article.')
                 obj.save()
 
         print('Processing article categories..')
         ArticleCategory.objects.all().delete()
         for obj in Article.objects.all():
             for k in range(1, randint(2, 3)):
-                ex_list = [x.category_guid_id for x in ArticleCategory.objects.filter(article_guid=obj.guid)]
+                ex_list = [x.category_guid_id for x in
+                           ArticleCategory.objects.filter(
+                               article_guid=obj.guid)]
                 cat_list = Category.objects.exclude(
-                    guid__in=[x.category_guid_id for x in ArticleCategory.objects.filter(article_guid=obj.guid)])
+                    guid__in=[x.category_guid_id for x in
+                              ArticleCategory.objects.filter(
+                                  article_guid=obj.guid)])
                 if len(ex_list) < 2:
-                    record = ArticleCategory.objects.create(article_guid=obj, category_guid=random.choice(cat_list))
-                    print(f'Added new category for {record.article_guid} : {record.category_guid}')
+                    record = ArticleCategory.objects.create(article_guid=obj,
+                                                            category_guid=random.choice(
+                                                                cat_list))
+                    print(
+                        f'Added new category for {record.article_guid} : {record.category_guid}')
 
         Notification.objects.all().delete()
         Comment.objects.all().delete()
@@ -118,8 +131,10 @@ class Command(BaseCommand):
         print('Processing users...')
         if User.objects.all().count() < 4:
             for u in range(1, randint(8, 16)):
-                User.objects.create(username=f'user_{u + 1000}', email=f'{str(uuid.uuid4()).replace("-", "")}@mail.ru',
-                                    first_name=random.choice(usr_names), last_name=random.choice(usr_surnames),
+                User.objects.create(username=f'user_{u + 1000}',
+                                    email=f'{str(uuid.uuid4()).replace("-", "")}@mail.ru',
+                                    first_name=random.choice(usr_names),
+                                    last_name=random.choice(usr_surnames),
                                     password="pbkdf2_sha256$390000$W9ScL6JhnkitBcoLExaSot$/xBnflk2GlA/T/HQl4K17c7lAdHi7+vHAzseDN1xhfM=")
         us = User.objects.all()
         for u in us:
@@ -132,8 +147,10 @@ class Command(BaseCommand):
         qs = Article.objects.all()
         for a in qs:
             for k in range(1, randint(8, 12)):
-                Comment.objects.create(article_uid=a, body=random.choice(comment_arr),
-                                       user_id=User.objects.get(id=random.choice(arr_usr)))
+                Comment.objects.create(article_uid=a,
+                                       body=random.choice(comment_arr),
+                                       user_id=User.objects.get(
+                                           id=random.choice(arr_usr)))
             for k in range(1, randint(8, 11)):
                 ArticleLike.set_like(article=a, user=random.choice(us))
 
@@ -159,10 +176,14 @@ class Command(BaseCommand):
 
         print('Creating groups...')
         new_group, created = Group.objects.get_or_create(name='moderators')
-        permission_change_users = Permission.objects.get(codename='change_user')
-        permission_delete_users = Permission.objects.get(codename='delete_user')
-        permission_add_articles = Permission.objects.get(codename='add_article')
-        permission_delete_articles = Permission.objects.get(codename='delete_article')
+        permission_change_users = Permission.objects.get(
+            codename='change_user')
+        permission_delete_users = Permission.objects.get(
+            codename='delete_user')
+        permission_add_articles = Permission.objects.get(
+            codename='add_article')
+        permission_delete_articles = Permission.objects.get(
+            codename='delete_article')
         new_group.permissions.add(permission_change_users)
         new_group.permissions.add(permission_delete_users)
         new_group.permissions.add(permission_add_articles)

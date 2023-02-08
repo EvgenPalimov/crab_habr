@@ -12,11 +12,15 @@ from crab_habr.settings import MEDIA_URL, STATIC_URL
 
 # Create your models here.
 class User(AbstractUser):
-    email = models.EmailField(null=False, unique=True, db_index=True, verbose_name='Электронная почта')
-    creation_datetime = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
-    blocked_until = models.DateField(verbose_name='Заблокирован до', default=datetime.date(2000, 1, 1))
+    email = models.EmailField(null=False, unique=True, db_index=True,
+                              verbose_name='Электронная почта')
+    creation_datetime = models.DateTimeField(auto_now_add=True,
+                                             verbose_name='Дата создания')
+    blocked_until = models.DateField(verbose_name='Заблокирован до',
+                                     default=datetime.date(2000, 1, 1))
     activation_key = models.CharField(max_length=128, blank=True)
-    activation_key_expires = models.DateTimeField(auto_now=True, blank=True, null=True)
+    activation_key_expires = models.DateTimeField(auto_now=True, blank=True,
+                                                  null=True)
 
     def __str__(self):
         return f'{self.username}, ' \
@@ -24,7 +28,8 @@ class User(AbstractUser):
 
     @staticmethod
     def restrict_user(user):
-        user.blocked_until = datetime.date.today() + +datetime.timedelta(days=14)
+        user.blocked_until = datetime.date.today() + +datetime.timedelta(
+            days=14)
         user.save()
         return datetime.datetime.strftime(user.blocked_until, '%Y-%m-%d')
 
@@ -52,17 +57,23 @@ class UserProfile(models.Model):
         (HIDDEN, 'НД')
     )
 
-    userid = models.OneToOneField(User, unique=True, null=False, db_index=True, on_delete=models.CASCADE,
+    userid = models.OneToOneField(User, unique=True, null=False, db_index=True,
+                                  on_delete=models.CASCADE,
                                   verbose_name='Ключ')
-    # firstname = models.CharField(max_length=128, verbose_name='Имя', default='')
-    # lastname = models.CharField(max_length=128, verbose_name='Фамилия', default='')
-    creation_datetime = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
-    birthday = models.DateField(verbose_name='Дата рождения', null=False, default='2001-01-01')
+    creation_datetime = models.DateTimeField(auto_now_add=True,
+                                             verbose_name='Дата создания')
+    birthday = models.DateField(verbose_name='Дата рождения', null=False,
+                                default='2001-01-01')
     about = models.TextField(verbose_name='О себе', blank=True, null=True)
-    gender = models.CharField(verbose_name='Пол', choices=GENDER_CHOICES, blank=True, max_length=5)
-    phone_number = models.CharField(max_length=16, verbose_name='Номер телефона', blank=True, null=True)
-    avatar_image = models.ImageField(upload_to='users_avatar', blank=True, verbose_name='Аватар')
-    profile_image = models.ImageField(upload_to='users_photo', blank=True, verbose_name='Фотография')
+    gender = models.CharField(verbose_name='Пол', choices=GENDER_CHOICES,
+                              blank=True, max_length=5)
+    phone_number = models.CharField(max_length=16,
+                                    verbose_name='Номер телефона', blank=True,
+                                    null=True)
+    avatar_image = models.ImageField(upload_to='users_avatar', blank=True,
+                                     verbose_name='Аватар')
+    profile_image = models.ImageField(upload_to='users_photo', blank=True,
+                                      verbose_name='Фотография')
 
     def __str__(self):
         return f'{self.userid.username}, ' \

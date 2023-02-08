@@ -10,7 +10,8 @@ JSON_PATH = 'articles/json'
 
 
 def save_json(file_name, data):
-    with open(path.join(JSON_PATH, file_name + '.json'), 'w', encoding='UTF-8') as file:
+    with open(path.join(JSON_PATH, file_name + '.json'), 'w',
+              encoding='UTF-8') as file:
         json.dump(data, file, indent=4, sort_keys=True, default=str)
 
 

@@ -14,7 +14,8 @@ class ArticleAddUpdateDeleteForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ArticleAddUpdateDeleteForm, self).__init__(*args, **kwargs)
-        self.fields['topic'].widget.attrs['placeholder'] = 'Введите название статьи'
+        self.fields['topic'].widget.attrs[
+            'placeholder'] = 'Введите название статьи'
         self.fields['topic'].label = 'Название статьи'
         self.fields['topic'].width = '90%'
         self.fields['article_body'].label = 'Текст статьи'
@@ -33,7 +34,8 @@ class CommentForm(forms.ModelForm):
 
 
 class SelectCategoryForm(forms.ModelForm):
-    name = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple, choices=Category.choices)
+    name = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple,
+                                     choices=Category.choices)
 
     def __init__(self, *args, **kwargs):
         super(SelectCategoryForm, self).__init__(*args, **kwargs)

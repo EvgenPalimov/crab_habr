@@ -13,7 +13,8 @@ CHOICES = (
 
 
 class ArticleFilter(FilterSet):
-    text = CharFilter(method='text_filter', label='Поиск по содержанию статьи:',
+    text = CharFilter(method='text_filter',
+                      label='Поиск по содержанию статьи:',
                       widget=TextInput(attrs={'placeholder': 'Текст'}))
 
     ordering = ChoiceFilter(choices=CHOICES, method='ordering_filter',
@@ -25,7 +26,8 @@ class ArticleFilter(FilterSet):
         fields = ['ordering', 'text']
 
     def text_filter(self, queryset, name, value):
-        queryset = queryset.filter(Q(article_body__icontains=value) | Q(topic__icontains=value))
+        queryset = queryset.filter(
+            Q(article_body__icontains=value) | Q(topic__icontains=value))
         return queryset
 
     def ordering_filter(self, queryset, name, value):
@@ -39,5 +41,6 @@ class ArticleFilter(FilterSet):
         field = field_choices.get(value, 0)
 
         if field:
-            queryset = queryset.annotate(likes=Sum('articlelike__event_counter')).order_by(field)
+            queryset = queryset.annotate(
+                likes=Sum('articlelike__event_counter')).order_by(field)
         return queryset

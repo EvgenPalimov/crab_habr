@@ -13,7 +13,8 @@ from django.conf import settings
 
 from articles.models import Article
 from crab_habr.mixin import BaseClassContextMixin, UserLoginCheckMixin
-from users.forms import UserLoginForm, UserRegistrationForm, UserForm, UserProfileForm
+from users.forms import UserLoginForm, UserRegistrationForm, UserForm, \
+    UserProfileForm
 from users.models import User
 from users.rating_counter import user_rating
 
@@ -39,7 +40,9 @@ class RegistrationView(BaseClassContextMixin, SuccessMessageMixin, CreateView):
             user = form.save()
             if self.send_verify_user(user):
                 messages.set_level(request, messages.SUCCESS)
-                messages.success(request, 'Вы успешно зарегистрировались! На e-mail придет ссылка на активацию аккаунта.')
+                messages.success(request,
+                                 'Вы успешно зарегистрировались!'
+                                 ' На e-mail придет ссылка на активацию аккаунта.')
                 return HttpResponseRedirect(reverse('users:authorization'))
             else:
                 messages.set_level(request, messages.ERROR)
@@ -50,18 +53,27 @@ class RegistrationView(BaseClassContextMixin, SuccessMessageMixin, CreateView):
         return render(request, self.template_name, {'form': form})
 
     def send_verify_user(self, user):
-        # функция отправляет сообщение пользователю на email с ссылкой на активацию аккаунта
-        verify_link = reverse('users:verify', args=[user.email, user.activation_key])
+        """
+        Функция отправляет сообщение пользователю на email с ссылкой на
+        активацию аккаунта.
+        """
+        verify_link = reverse('users:verify',
+                              args=[user.email, user.activation_key])
         subject = f'Для активации учетной записи {user.username} пройдите по ссылке'
         message = f'Для подверждения учетной записи {user.username} на портале {settings.DOMAIN_NAME} ' \
                   f' пройдите по ссылке: \n http://127.0.0.1:8000{verify_link}'  # вместо http://127.0.0.1:8000 потом подставить settings.DOMAIN_NAME
-        return send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email], fail_silently=False)
+        return send_mail(subject, message, settings.EMAIL_HOST_USER,
+                         [user.email], fail_silently=False)
 
     def verify(self, email, activate_key):
-        # функция после проверки email и ключа активации активирует аккаунт пользователя.
+        """
+        Функция после проверки email и ключа активации
+        активирует аккаунт пользователя.
+        """
         try:
             user = User.objects.get(email=email)
-            if user and user.activation_key == activate_key and not user.is_activation_key_expires():
+            if user and user.activation_key == activate_key and not \
+                    user.is_activation_key_expires():
                 user.activation_key = ''
                 user.activation_key_expires = None
                 user.is_active = True
@@ -73,7 +85,8 @@ class RegistrationView(BaseClassContextMixin, SuccessMessageMixin, CreateView):
 
 
 # Профиль
-class UserProfileView(BaseClassContextMixin, UserLoginCheckMixin, UpdateView, SuccessMessageMixin):
+class UserProfileView(BaseClassContextMixin, UserLoginCheckMixin, UpdateView,
+                      SuccessMessageMixin):
     model = User
     title = 'Профиль'
     form_class = UserForm
@@ -85,14 +98,17 @@ class UserProfileView(BaseClassContextMixin, UserLoginCheckMixin, UpdateView, Su
 
     def get_context_data(self, **kwargs):
         context = super(UserProfileView, self).get_context_data(**kwargs)
-        context['profile'] = UserProfileForm(instance=self.request.user.userprofile)
-        context['articles'] = Article.objects.filter(author_id=self.request.user.id)
+        context['profile'] = UserProfileForm(
+            instance=self.request.user.userprofile)
+        context['articles'] = Article.objects.filter(
+            author_id=self.request.user.id)
         return context
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
         form = UserForm(data=request.POST, instance=request.user)
-        profile_form = UserProfileForm(request.POST, files=request.FILES, instance=request.user.userprofile)
+        profile_form = UserProfileForm(request.POST, files=request.FILES,
+                                       instance=request.user.userprofile)
         if form.is_valid() and profile_form.is_valid():
             messages.success(self.request, 'Данные успешно обновлены!')
             form.save()
@@ -116,7 +132,8 @@ class PublicUserProfileView(BaseClassContextMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(PublicUserProfileView, self).get_context_data(**kwargs)
-        context['user_rating'] = user_rating(self.kwargs["pk"])  # подсчет рейтинга пользователя
+        context['user_rating'] = user_rating(
+            self.kwargs["pk"])  # подсчет рейтинга пользователя
         return context
 
 

@@ -25,7 +25,8 @@ from crab_habr.views import HelpView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', IndexListView.as_view(), name='index'),
-    path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico', permanent=True)),
+    path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico',
+                                             permanent=True)),
     path('summernote/', include('django_summernote.urls')),
     re_path(r'^chaining/', include('smart_selects.urls')),
     path('users/', include("users.urls")),
@@ -34,7 +35,8 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)
 
 # обработка исключения страница не найдена
 handler404 = 'crab_habr.views.page_not_found_view'

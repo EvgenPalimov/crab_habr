@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from articles.models import Article, Category, Comment, ArticleLike, CommentLike, Notification
+from articles.models import Category
 
 
 class CategoryTests(TestCase):
@@ -49,9 +49,11 @@ class CategoryTests(TestCase):
         self.assertEqual(real_image_max_length, expected_image_max_length)
 
     def test_is_active_verbose_name(self):
-        real_is_active_verbose_name = getattr(self.is_active_field, 'verbose_name')
+        real_is_active_verbose_name = getattr(self.is_active_field,
+                                              'verbose_name')
         expected_is_active_verbose_name = 'Активность'
-        self.assertEqual(real_is_active_verbose_name, expected_is_active_verbose_name)
+        self.assertEqual(real_is_active_verbose_name,
+                         expected_is_active_verbose_name)
 
     def test_is_active_default(self):
         real_is_active_default = getattr(self.is_active_field, 'default')
@@ -59,7 +61,8 @@ class CategoryTests(TestCase):
 
     def test_model_choices(self):
         real_model_choices = self.category.choices()
-        expected_model_choices = [('b2695f9c-ad29-4e9b-a63e-55e788d6dd13', 'Нет категории')]
+        expected_model_choices = [
+            ('b2695f9c-ad29-4e9b-a63e-55e788d6dd13', 'Нет категории')]
         self.assertEqual(real_model_choices, expected_model_choices)
 
     def test_model_verbose_name(self):
