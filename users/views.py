@@ -61,7 +61,7 @@ class RegistrationView(BaseClassContextMixin, SuccessMessageMixin, CreateView):
                               args=[user.email, user.activation_key])
         subject = f'Для активации учетной записи {user.username} пройдите по ссылке'
         message = f'Для подверждения учетной записи {user.username} на портале {settings.DOMAIN_NAME} ' \
-                  f' пройдите по ссылке: \n http://127.0.0.1:8000{verify_link}'  # вместо http://127.0.0.1:8000 потом подставить settings.DOMAIN_NAME
+                  f' пройдите по ссылке: \n http://87.249.53.112{verify_link}'
         return send_mail(subject, message, settings.EMAIL_HOST_USER,
                          [user.email], fail_silently=False)
 
