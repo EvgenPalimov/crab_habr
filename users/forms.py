@@ -73,7 +73,7 @@ class UserRegistrationForm(UserCreationForm):
     def save(self):
         # метод дополнительно создает ключ активации пользователя
         user = super(UserRegistrationForm, self).save()
-        user.is_active = False
+        user.is_active = True
         salt = hashlib.sha1(str(random.random()).encode('utf8')).hexdigest()[
                :6]
         user.activation_key = hashlib.sha1(
