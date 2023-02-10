@@ -46,7 +46,8 @@ class RegistrationView(BaseClassContextMixin, SuccessMessageMixin, CreateView):
             if self.send_verify_user(user):
                 messages.set_level(request, messages.SUCCESS)
                 messages.success(request,
-                                 'Вы успешно зарегистрировались!')
+                                 'Вы успешно зарегистрировались!'
+                                 ' На e-mail придет ссылка на активацию аккаунта.')
                 return HttpResponseRedirect(reverse('users:authorization'))
             else:
                 messages.set_level(request, messages.ERROR)
