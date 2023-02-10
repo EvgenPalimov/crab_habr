@@ -197,8 +197,8 @@ SUMMERNOTE_CONFIG = {
 
 # отправка электронной почты:
 DOMAIN_NAME = 'http://87.249.53.112'
-EMAIL_HOST = 'smtp.mail.ru'
-EMAIL_PORT = 587
+EMAIL_HOST = 'ssl://smtp.mail.ru'
+EMAIL_PORT = 465
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
