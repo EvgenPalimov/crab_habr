@@ -225,7 +225,19 @@ LOGGING = {
         }
     },
     'root': {
-        'level': 'INFO',
+        'level': 'DEBUG',
         'handlers': ['file']
-    }
+    },
+    'django.request': {
+        'level': 'DEBUG',
+        'handlers': ['file']
+    },
+    'django.server': {
+        'level': 'DEBUG',
+        'handlers': ['file']
+    },
+    'django.db.backends': {
+        'level': 'DEBUG',
+        'handlers': ['file']
+    },
 }
