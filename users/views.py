@@ -17,6 +17,11 @@ from users.forms import UserLoginForm, UserRegistrationForm, UserForm, \
     UserProfileForm
 from users.models import User
 from users.rating_counter import user_rating
+# import the logging library
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 
 # Аутентификация пользователя
@@ -38,11 +43,14 @@ class RegistrationView(BaseClassContextMixin, SuccessMessageMixin, CreateView):
         form = self.form_class(data=request.POST)
         if form.is_valid():
             user = form.save()
+            logger.info('пользователь сохранен')
+            subject = f'Для активации учетной записи {user.username} '
+            message = f'Для подверждения учетной записи'
+            send_mail(subject, message, settings.EMAIL_HOST_USER,
+                      [user.email], fail_silently=False)
             if self.send_verify_user(user):
-                subject = f'Для активации учетной записи {user.username} '
-                message = f'Для подверждения учетной записи'
-                send_mail(subject, message, settings.EMAIL_HOST_USER,
-                          [user.email], fail_silently=False)
+                logger.info('отправка прошла')
+
                 messages.set_level(request, messages.SUCCESS)
                 messages.success(request,
                                  'Вы успешно зарегистрировались!'
