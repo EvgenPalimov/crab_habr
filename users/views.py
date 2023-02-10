@@ -43,12 +43,7 @@ class RegistrationView(BaseClassContextMixin, SuccessMessageMixin, CreateView):
         form = self.form_class(data=request.POST)
         if form.is_valid():
             user = form.save()
-            logger.info('пользователь сохранен')
-            send_mail('asda', 'asdasda', settings.EMAIL_HOST_USER,
-                      [user.email], fail_silently=False)
             if self.send_verify_user(user):
-                logger.info('отправка прошла')
-
                 messages.set_level(request, messages.SUCCESS)
                 messages.success(request,
                                  'Вы успешно зарегистрировались!'

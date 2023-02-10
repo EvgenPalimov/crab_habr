@@ -206,7 +206,7 @@ EMAIL_USE_SSL = False
 SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 LOGGING = {
     'version': 1,
@@ -224,15 +224,8 @@ LOGGING = {
             'filename': 'debug.log'
         }
     },
-    'loggers': {
-        'django': {
-            'level': 'DEBUG',
-            'handlers': ['file'],
-            'propagate': True,
-        },
-        'django.request': {
-            'level': 'DEBUG',
-            'handlers': ['file']
-        }
+    'root': {
+        'level': 'INFO',
+        'handlers': ['file']
     }
 }
