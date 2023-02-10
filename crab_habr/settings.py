@@ -221,7 +221,7 @@ LOGGING = {
     },
     'handlers': {
         'file': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'formatter': 'file',
             'filename': 'debug.log'
@@ -229,7 +229,7 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'handlers': ['file'],
         }
     }
