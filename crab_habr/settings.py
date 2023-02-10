@@ -196,7 +196,6 @@ SUMMERNOTE_CONFIG = {
 }
 
 # отправка электронной почты:
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 DOMAIN_NAME = 'http://87.249.53.112'
 EMAIL_HOST = 'smtp.mail.ru'
 EMAIL_PORT = 587
@@ -206,6 +205,9 @@ EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = 'tmp/emails/'
 
 LOGGING = {
     'version': 1,
