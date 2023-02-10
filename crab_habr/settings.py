@@ -224,7 +224,7 @@ LOGGING = {
             'filename': 'debug.log'
         }
     },
-    'root': {
+    'django': {
         'level': 'DEBUG',
         'handlers': ['file']
     },
