@@ -13,6 +13,12 @@
 * Django 4.1
 * Зависимости (Python) из requirements.txt
 
+Сайт для размещения статей на тему IT и Digital технологий. Реализован 
+механизм регистрации и авторизации. Имеется личный кабинет с возможностью 
+добавления и редактирования статей. Реализован механизм уведомлений, лайков и 
+комментариев. Реализована административная панель для управления данными на 
+базе стандартной админки Django.
+
 ### Установка необходимого ПО
 
 #### Обновляем информацию о репозиториях
@@ -56,36 +62,14 @@ apt install python3-pip
 Создаем и активируем виртуальное окружение:
 
 ```
-mkdir /opt/venv
-python3 -m venv /opt/venv/team_work_env
-source /opt/venv/team_work_env/bin/activate
-```
-
-Создаем директории под логи:
-
-```
-mkdir /opt/venv/team_work_env/run/
-mkdir /opt/venv/team_work_env/logs/
-mkdir /opt/venv/team_work_env/logs/nginx/
-```
-
-Устанавливаем права:
-
-```
-chown -R hh /opt/venv/team_work_env
-```
-
-Клонируем репозиторий:
-
-```
-git clone https://github.com/GeekbrainsProject/team_work.git /opt/venv/team_work_env/src
-cd team_work_env/
+python3 -m venv env
+source env/bin/activate
 ```
 
 Ставим зависимости:
 
 ```
-pip3 install -r /opt/venv/team_work_env/src/team_work/requirements.txt
+pip3 install -r requirements.txt
 ```
 
 #### Суперпользователь
@@ -104,12 +88,6 @@ python3 manage.py createsuperuser
 python3 manage.py migrate
 ```
 
-Собираем статику:
-
-```
-python3 manage.py collectstatic
-```
-
 #### Заполнить базу данных тестовыми данными (необязательно)
 
 ```
@@ -122,28 +100,20 @@ python3 manage.py fill_db
 python3 manage.py runserver
 ```
 
-#### Назначение прав доступа
-
-```
-chown -R xabr /home/team_work_env/
-chmod -R 755 /home/team_work_env/team_work/
-```
-
 Настроим параметры службы «gunicorn»
 
 ```
 sudo nano /etc/systemd/system/gunicorn.service
-
 
 [Unit]
 Description=gunicorn daemon
 After=network.target
 
 [Service]
-User=USER_NAME
+User=django
 Group=www-data
-WorkingDirectory=/home/team_work_env/team_work
-ExecStart=/home/team_work_env/team_work/bin/gunicorn --access-logfile - --workers 3 --bind unix:/home/team_work_env/team_work/team_work.sock xabr.wsgi
+WorkingDirectory=/home/django/crab_habr
+ExecStart=/home/django/crab_habr/env/bin/gunicorn --error-logfile "/var/log/gunicorn/error.log" --access-logfile "/var/log/gunicorn/access.log" --workers 3 --bind unix:/home/django/crab_habr/crab_habr.sock crab_habr.wsgi
 
 [Install]
 WantedBy=multi-user.target
@@ -161,25 +131,24 @@ sudo systemctl status gunicorn
 Настройки параметров для nginx
 
 ```
-sudo nano /etc/nginx/sites-available/team_work.conf
+sudo nano /etc/nginx/sites-available/crab_habr
 
 server {
-    listen 80;
-    server_name 151.248.117.226; ### server_name необхоимо написать ip-адрес сервера
-
-    location = /favicon.ico { access_log off; log_not_found off; }
-    location /static/ {
-        root /home/team_work_env/team_work;
-    }
-
-    location /media/ {
-        root /home/team_work_env/team_work;
-    }
-
-    location / {
-        include proxy_params;
-        proxy_pass http://unix:/home/team_work/team_work/team_work.sock;
-    }
+  listen 80;
+  server_name 81.200.145.185;
+  location = /favicon.ico {
+    alias /home/django/crab_habr/static/favicon.ico;
+  }
+  location /static/ {
+    root /home/django/crab_habr;
+  }
+  location /media/ {
+    root /home/django/crab_habr;
+  }
+  location / {
+    include proxy_params;
+    proxy_pass http://unix:/home/django/crab_habr/crab_habr.sock;
+  }
 }
 ```
 
@@ -192,17 +161,7 @@ sudo systemctl restart nginx
 #### Активируем сайт
 
 ```
-sudo ln -s /etc/nginx/sites-available/team_work /etc/nginx/sites-enabled
+sudo ln -s /etc/nginx/sites-available/crab_habr /etc/nginx/sites-enabled
 ```
 
 ### После этого в браузере можно ввести ip-адрес сервера и откроется проект.
-
-#### Выкат изменений из Git:
-
-```
-source /opt/venv/team_work/bin/activate
-cd /opt/venv/team_work/src
-git pull origin master
-pip3 install -r requirements.txt
-python3 manage.py migrate
-python3 manage.py collectstatic
