@@ -17,11 +17,6 @@ from users.forms import UserLoginForm, UserRegistrationForm, UserForm, \
     UserProfileForm
 from users.models import User
 from users.rating_counter import user_rating
-# import the logging library
-import logging
-
-# Get an instance of a logger
-logger = logging.getLogger(__name__)
 
 
 # Аутентификация пользователя
@@ -47,7 +42,8 @@ class RegistrationView(BaseClassContextMixin, SuccessMessageMixin, CreateView):
                 messages.set_level(request, messages.SUCCESS)
                 messages.success(request,
                                  'Вы успешно зарегистрировались!'
-                                 ' На e-mail придет ссылка на активацию аккаунта.')
+                                 ' На e-mail придет ссылка на активацию'
+                                 ' аккаунта.')
                 return HttpResponseRedirect(reverse('users:authorization'))
             else:
                 messages.set_level(request, messages.ERROR)
@@ -59,13 +55,15 @@ class RegistrationView(BaseClassContextMixin, SuccessMessageMixin, CreateView):
 
     def send_verify_user(self, user):
         """
-        Функция отправляет сообщение пользователю на email с ссылкой на
+        Функция отправляет сообщение пользователю на email со ссылкой на
         активацию аккаунта.
         """
         verify_link = reverse('users:verify',
                               args=[user.email, user.activation_key])
-        subject = f'Для активации учетной записи {user.username} пройдите по ссылке'
-        message = f'Для подверждения учетной записи {user.username} на портале {settings.DOMAIN_NAME} ' \
+        subject = f'Для активации учетной записи {user.username} ' \
+                  f'пройдите по ссылке'
+        message = f'Для подверждения учетной записи {user.username}' \
+                  f' на портале {settings.DOMAIN_NAME} ' \
                   f' пройдите по ссылке: \n http://87.249.53.112{verify_link}'
         return send_mail(subject, message, settings.EMAIL_HOST_USER,
                          [user.email], fail_silently=False)
@@ -128,7 +126,7 @@ class UserLogoutView(BaseClassContextMixin, UserLoginCheckMixin, LogoutView):
 
 class PublicUserProfileView(BaseClassContextMixin, DetailView):
     """
-    класс выводит публичный профиль пользователя
+    Класс выводит публичный профиль пользователя
     """
     model = User
     title = 'Профиль пользователя'

@@ -70,7 +70,7 @@ class UserRegistrationForm(UserCreationForm):
             'placeholder'] = 'Повторите пароль'
         self.fields['password2'].label = 'Повторите пароль'
 
-    def save(self):
+    def save(self, **kwargs):
         # метод дополнительно создает ключ активации пользователя
         user = super(UserRegistrationForm, self).save()
         user.is_active = False
